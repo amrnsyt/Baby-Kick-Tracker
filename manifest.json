@@ -1,0 +1,23 @@
+{
+  "short_name": "Little Kicks",
+  "name": "Little Kicks Baby Tracker",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23FF7A90' width='192' height='192'/><text x='96' y='135' font-size='95' text-anchor='middle' fill='white'>👶</text></svg>",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23FF7A90' width='512' height='512'/><text x='256' y='360' font-size='260' text-anchor='middle' fill='white'>👶</text></svg>",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#FFF5F7",
+  "theme_color": "#FF7A90",
+  "display": "standalone",
+  "orientation": "portrait"
+}
