@@ -3,7 +3,7 @@
   "name": "Little Kicks Baby Tracker",
   "icons": [
     {
-      "src": "icon.svg",
+      "src": "/Baby-Kick-Tracker/icon.svg",
       "type": "image/svg+xml",
       "sizes": "192x192 512x512",
       "purpose": "any maskable"
