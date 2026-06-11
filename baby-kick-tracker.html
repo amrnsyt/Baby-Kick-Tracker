@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B9D">
+    <meta name="description" content="Track baby kicks and share with your partner">
+    <title>Baby Kick Tracker</title>
+    <link rel="manifest" href="data:application/json,{
+        %22name%22:%22Baby Kick Tracker%22,
+        %22short_name%22:%22Kick Tracker%22,
+        %22start_url%22:%22.%22,
+        %22display%22:%22standalone%22,
+        %22background_color%22:%22%23ffffff%22,
+        %22theme_color%22:%22%23FF6B9D%22,
+        %22orientation%22:%22portrait%22,
+        %22icons%22:[{%22src%22:%22data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27><rect fill=%27%23FF6B9D%27 width=%27192%27 height=%27192%27/><text x=%2796%27 y=%27140%27 font-size=%27100%27 font-weight=%27bold%27 text-anchor=%27middle%27 fill=%27white%27>👶</text></svg>%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]
+    }">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #FFE5EC 0%, #FFF5F7 100%);
+            min-height: 100vh;
+            padding-bottom: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #FF6B9D 0%, #FF8FB8 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: #f0f0f0;
+            color: #333;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #FF6B9D 0%, #FF8FB8 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .kick-input-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .time-display {
+            text-align: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: #FF6B9D;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .kick-button {
+            width: 100%;
+            padding: 25px;
+            font-size: 28px;
+            background: linear-gradient(135deg, #FF6B9D 0%, #FF8FB8 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 700;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .kick-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+        }
+
+        .kick-input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="time"],
+        input[type="date"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #FFE5EC;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        input[type="time"]:focus,
+        input[type="date"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #FF6B9D;
+            box-shadow: 0 0 8px rgba(255, 107, 157, 0.2);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #FF6B9D;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .kick-list {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .kick-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .kick-item:last-child {
+            border-bottom: none;
+        }
+
+        .kick-time {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .kick-date {
+            color: #999;
+            font-size: 13px;
+            margin-top: 3px;
+        }
+
+        .kick-intensity {
+            background: #FFE5EC;
+            color: #FF6B9D;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state-emoji {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .date-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .date-nav button {
+            background: #FFE5EC;
+            color: #FF6B9D;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .date-display {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .notification-banner {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .notification-banner.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .user-section {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .user-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #FFE5EC;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .user-input:focus {
+            outline: none;
+            border-color: #FF6B9D;
+            box-shadow: 0 0 8px rgba(255, 107, 157, 0.2);
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .clear-data-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👶 Baby Kick Tracker</h1>
+            <p id="userRole"></p>
+        </header>
+
+        <div id="notificationBanner" class="notification-banner"></div>
+
+        <div class="user-section">
+            <div class="user-label">👩 Mom's Name</div>
+            <input type="text" id="momName" class="user-input" placeholder="Enter mother's name" value="Mom">
+            <div class="user-label" style="margin-top: 15px;">👨 Dad's Name</div>
+            <input type="text" id="dadName" class="user-input" placeholder="Enter father's name" value="Dad">
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('record')">📝 Record</button>
+            <button class="tab-btn" onclick="switchTab('view')">📊 View</button>
+            <button class="tab-btn" onclick="switchTab('settings')">⚙️ Settings</button>
+        </div>
+
+        <!-- RECORD TAB -->
+        <div id="record" class="tab-content active">
+            <div class="kick-input-section">
+                <div class="time-display" id="liveTime">12:34</div>
+                <button class="kick-button" onclick="recordKickQuick()">🦵 RECORD KICK</button>
+
+                <div class="kick-input-group">
+                    <label>Date</label>
+                    <input type="date" id="kickDate">
+                </div>
+
+                <div class="kick-input-group">
+                    <label>Time</label>
+                    <input type="time" id="kickTime">
+                </div>
+
+                <div class="kick-input-group">
+                    <label>Intensity (1-5)</label>
+                    <input type="number" id="kickIntensity" min="1" max="5" value="3">
+                </div>
+
+                <div class="kick-input-group">
+                    <label>Notes (optional)</label>
+                    <input type="text" id="kickNotes" placeholder="e.g., strong kick, multiple kicks...">
+                </div>
+
+                <button class="submit-btn" onclick="recordKick()">Save Kick Entry</button>
+            </div>
+        </div>
+
+        <!-- VIEW TAB -->
+        <div id="view" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="todayCount">0</div>
+                    <div class="stat-label">Kicks Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="weekCount">0</div>
+                    <div class="stat-label">Kicks This Week</div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <div class="date-nav">
+                    <button onclick="previousDate()">← Prev</button>
+                    <span class="date-display" id="dateFilterDisplay">Today</span>
+                    <button onclick="nextDate()">Next →</button>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="tab-btn" style="flex: 1; padding: 10px; font-size: 13px;" onclick="setViewMode('day')" id="dayBtn">Daily</button>
+                    <button class="tab-btn" style="flex: 1; padding: 10px; font-size: 13px;" onclick="setViewMode('week')" id="weekBtn">Weekly</button>
+                </div>
+            </div>
+
+            <div id="kickListContainer" class="kick-list">
+                <div class="empty-state">
+                    <div class="empty-state-emoji">📭</div>
+                    <p>No kicks recorded yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div id="settings" class="tab-content">
+            <div class="user-section">
+                <h3 style="margin-bottom: 15px;">Notifications</h3>
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="checkbox" id="notificationToggle" style="width: 20px; height: 20px; margin-right: 10px; cursor: pointer;" onchange="toggleNotifications()">
+                    <span>Enable notifications</span>
+                </label>
+                <p style="font-size: 12px; color: #999; margin-top: 10px;">When enabled, you'll receive notifications when kicks are recorded</p>
+            </div>
+
+            <div class="user-section">
+                <h3 style="margin-bottom: 15px;">Data Management</h3>
+                <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Export your data or clear all records</p>
+                <button class="submit-btn" onclick="exportData()" style="background: linear-gradient(135deg, #2196F3 0%, #42A5F5 100%); margin-bottom: 10px;">📥 Export Data</button>
+                <button class="clear-data-btn" onclick="clearAllData()">🗑️ Clear All Data</button>
+            </div>
+
+            <div class="user-section">
+                <h3 style="margin-bottom: 15px;">About</h3>
+                <p style="font-size: 13px; color: #666;">Baby Kick Tracker v1.0</p>
+                <p style="font-size: 12px; color: #999; margin-top: 10px;">Track your baby's movements and share with your partner</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                self.addEventListener('push', event => {
+                    const options = {
+                        body: event.data ? event.data.text() : 'A kick was recorded!',
+                        icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22><rect fill=%22%23FF6B9D%22 width=%22192%22 height=%22192%22/><text x=%2296%22 y=%22140%22 font-size=%22100%22 font-weight=%22bold%22 text-anchor=%22middle%22 fill=%22white%22>👶</text></svg>',
+                        badge: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22><rect fill=%22%23FF6B9D%22 width=%22192%22 height=%22192%22/></svg>',
+                        tag: 'kick-notification',
+                        requireInteraction: false
+                    };
+                    self.registration.showNotification('Baby Kick Recorded! 👶', options);
+                });
+
+                self.addEventListener('notificationclick', event => {
+                    event.notification.close();
+                });
+            `;
+            
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swUrl).catch(err => {
+                console.log('Service Worker registration failed:', err);
+            });
+        }
+
+        // Data Structure
+        let kicks = [];
+        let currentViewMode = 'day';
+        let currentFilterDate = new Date();
+        let momName = localStorage.getItem('momName') || 'Mom';
+        let dadName = localStorage.getItem('dadName') || 'Dad';
+
+        // Initialize
+        function init() {
+            loadData();
+            updateLiveTime();
+            setTodayDate();
+            displayStats();
+            updateUserRole();
+            setInterval(updateLiveTime, 1000);
+            
+            document.getElementById('momName').value = momName;
+            document.getElementById('dadName').value = dadName;
+            
+            document.getElementById('notificationToggle').checked = localStorage.getItem('notificationsEnabled') === 'true';
+        }
+
+        function updateUserRole() {
+            const role = localStorage.getItem('userRole') || 'mom';
+            const roleText = role === 'mom' ? `👩 ${momName} (Recording)` : `👨 ${dadName} (Receiving)`;
+            document.getElementById('userRole').textContent = roleText;
+        }
+
+        function toggleUserRole() {
+            const currentRole = localStorage.getItem('userRole') || 'mom';
+            const newRole = currentRole === 'mom' ? 'dad' : 'mom';
+            localStorage.setItem('userRole', newRole);
+            updateUserRole();
+        }
+
+        function setTodayDate() {
+            const today = new Date();
+            const dateString = today.toISOString().split('T')[0];
+            document.getElementById('kickDate').value = dateString;
+            document.getElementById('kickTime').value = today.getHours().toString().padStart(2, '0') + ':' + today.getMinutes().toString().padStart(2, '0');
+        }
+
+        function updateLiveTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('liveTime').textContent = `${hours}:${minutes}`;
+        }
+
+        function recordKickQuick() {
+            const now = new Date();
+            const dateString = now.toISOString().split('T')[0];
+            const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            
+            const kick = {
+                id: Date.now(),
+                date: dateString,
+                time: timeString,
+                intensity: 3,
+                notes: 'Quick record',
+                timestamp: now.getTime()
+            };
+            
+            kicks.push(kick);
+            saveData();
+            showNotification('Kick recorded! 👶');
+            displayStats();
+            syncWithPartner(kick);
+        }
+
+        function recordKick() {
+            const date = document.getElementById('kickDate').value;
+            const time = document.getElementById('kickTime').value;
+            const intensity = parseInt(document.getElementById('kickIntensity').value) || 3;
+            const notes = document.getElementById('kickNotes').value;
+
+            if (!date || !time) {
+                alert('Please fill in date and time');
+                return;
+            }
+
+            const kick = {
+                id: Date.now(),
+                date: date,
+                time: time,
+                intensity: intensity,
+                notes: notes,
+                timestamp: new Date(date + 'T' + time).getTime()
+            };
+
+            kicks.push(kick);
+            saveData();
+            
+            // Clear inputs
+            document.getElementById('kickIntensity').value = 3;
+            document.getElementById('kickNotes').value = '';
+            setTodayDate();
+            
+            showNotification('Kick saved! 👶');
+            displayStats();
+            syncWithPartner(kick);
+        }
+
+        function recordKickQuick() {
+            const now = new Date();
+            const dateString = now.toISOString().split('T')[0];
+            const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            
+            const kick = {
+                id: Date.now(),
+                date: dateString,
+                time: timeString,
+                intensity: 3,
+                notes: '',
+                timestamp: now.getTime()
+            };
+            
+            kicks.push(kick);
+            saveData();
+            showNotification('Kick recorded! 👶');
+            displayStats();
+            syncWithPartner(kick);
+        }
+
+        function syncWithPartner(kick) {
+            const syncData = {
+                type: 'newKick',
+                kick: kick,
+                timestamp: Date.now(),
+                recorder: localStorage.getItem('userRole') || 'mom'
+            };
+            
+            // Store sync data for partner devices
+            const syncQueue = JSON.parse(localStorage.getItem('syncQueue') || '[]');
+            syncQueue.push(syncData);
+            localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
+            
+            // Broadcast to other tabs/windows
+            if (typeof(Storage) !== "undefined") {
+                window.dispatchEvent(new CustomEvent('kickSync', { detail: syncData }));
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('kicks', JSON.stringify(kicks));
+        }
+
+        function loadData() {
+            const stored = localStorage.getItem('kicks');
+            kicks = stored ? JSON.parse(stored) : [];
+            kicks.sort((a, b) => b.timestamp - a.timestamp);
+        }
+
+        function displayStats() {
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+            
+            const todayKicks = kicks.filter(k => k.date === todayString).length;
+            document.getElementById('todayCount').textContent = todayKicks;
+
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            const weekStartString = weekStart.toISOString().split('T')[0];
+            
+            const weekKicks = kicks.filter(k => k.date >= weekStartString).length;
+            document.getElementById('weekCount').textContent = weekKicks;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'view') {
+                refreshKickList();
+            }
+        }
+
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            currentFilterDate = new Date();
+            document.getElementById('dayBtn').classList.toggle('active', mode === 'day');
+            document.getElementById('weekBtn').classList.toggle('active', mode === 'week');
+            refreshKickList();
+        }
+
+        function previousDate() {
+            if (currentViewMode === 'day') {
+                currentFilterDate.setDate(currentFilterDate.getDate() - 1);
+            } else {
+                currentFilterDate.setDate(currentFilterDate.getDate() - 7);
+            }
+            refreshKickList();
+        }
+
+        function nextDate() {
+            if (currentViewMode === 'day') {
+                currentFilterDate.setDate(currentFilterDate.getDate() + 1);
+            } else {
+                currentFilterDate.setDate(currentFilterDate.getDate() + 7);
+            }
+            refreshKickList();
+        }
+
+        function refreshKickList() {
+            const filtered = filterKicksByDate();
+            const container = document.getElementById('kickListContainer');
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-emoji">📭</div>
+                        <p>No kicks recorded for this period</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const dateDisplay = currentViewMode === 'day' 
+                ? currentFilterDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                : `Week of ${currentFilterDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+            
+            document.getElementById('dateFilterDisplay').textContent = dateDisplay;
+
+            let html = '';
+            filtered.forEach(kick => {
+                const intensityLabel = ['Very Weak', 'Weak', 'Normal', 'Strong', 'Very Strong'][kick.intensity - 1];
+                html += `
+                    <div class="kick-item">
+                        <div>
+                            <div class="kick-time">${kick.time} - ${kick.date}</div>
+                            <div class="kick-date">Intensity: ${kick.intensity}/5</div>
+                            ${kick.notes ? `<div class="kick-date">Note: ${kick.notes}</div>` : ''}
+                        </div>
+                        <button class="delete-btn" onclick="deleteKick(${kick.id})">Delete</button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function filterKicksByDate() {
+            const filterDate = currentFilterDate.toISOString().split('T')[0];
+            
+            if (currentViewMode === 'day') {
+                return kicks.filter(k => k.date === filterDate).sort((a, b) => {
+                    return new Date(`2000-01-01T${b.time}`) - new Date(`2000-01-01T${a.time}`);
+                });
+            } else {
+                const weekStart = new Date(currentFilterDate);
+                weekStart.setDate(currentFilterDate.getDate() - currentFilterDate.getDay());
+                const weekStartString = weekStart.toISOString().split('T')[0];
+                
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                const weekEndString = weekEnd.toISOString().split('T')[0];
+                
+                return kicks.filter(k => k.date >= weekStartString && k.date <= weekEndString)
+                    .sort((a, b) => b.timestamp - a.timestamp);
+            }
+        }
+
+        function deleteKick(id) {
+            if (confirm('Delete this kick record?')) {
+                kicks = kicks.filter(k => k.id !== id);
+                saveData();
+                displayStats();
+                refreshKickList();
+                showNotification('Kick deleted');
+            }
+        }
+
+        function showNotification(message) {
+            const banner = document.getElementById('notificationBanner');
+            banner.textContent = message;
+            banner.classList.add('show');
+            setTimeout(() => banner.classList.remove('show'), 3000);
+
+            if (localStorage.getItem('notificationsEnabled') === 'true' && 'Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    new Notification(message, {
+                        icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22><rect fill=%22%23FF6B9D%22 width=%22192%22 height=%22192%22/><text x=%2296%22 y=%22140%22 font-size=%22100%22 font-weight=%22bold%22 text-anchor=%22middle%22 fill=%22white%22>👶</text></svg>'
+                    });
+                }
+            }
+        }
+
+        function toggleNotifications() {
+            const enabled = document.getElementById('notificationToggle').checked;
+            localStorage.setItem('notificationsEnabled', enabled);
+            
+            if (enabled && 'Notification' in window && Notification.permission !== 'granted') {
+                Notification.requestPermission();
+            }
+        }
+
+        function exportData() {
+            const dataToExport = {
+                kicks: kicks,
+                momName: momName,
+                dadName: dadName,
+                exportDate: new Date().toISOString()
+            };
+            
+            const jsonString = JSON.stringify(dataToExport, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `baby-kicks-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('Data exported! 📥');
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure? This will delete ALL kick records. This cannot be undone!')) {
+                kicks = [];
+                saveData();
+                displayStats();
+                refreshKickList();
+                showNotification('All data cleared');
+            }
+        }
+
+        // Listen for name changes
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('momName').addEventListener('change', (e) => {
+                momName = e.target.value;
+                localStorage.setItem('momName', momName);
+                updateUserRole();
+            });
+
+            document.getElementById('dadName').addEventListener('change', (e) => {
+                dadName = e.target.value;
+                localStorage.setItem('dadName', dadName);
+                updateUserRole();
+            });
+        });
+
+        // Listen for sync events from other tabs
+        window.addEventListener('kickSync', (e) => {
+            loadData();
+            displayStats();
+            if (currentViewMode === 'week') {
+                refreshKickList();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
