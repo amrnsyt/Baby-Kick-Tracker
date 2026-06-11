@@ -1,0 +1,18 @@
+{
+  "short_name": "Little Kicks",
+  "name": "Little Kicks Baby Tracker",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/Baby-Kick-Tracker/index.html",
+  "scope": "/Baby-Kick-Tracker/",
+  "background_color": "#FFF5F7",
+  "theme_color": "#FF7A90",
+  "display": "standalone",
+  "orientation": "portrait"
+}
