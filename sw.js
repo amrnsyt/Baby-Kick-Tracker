@@ -1,11 +1,12 @@
-const CACHE_NAME = 'little-kicks-cache-v1';
+const CACHE_NAME = 'little-kicks-cache-v2';
 const ASSETS = [
-  'index.html',
-  'manifest.json',
-  'icon.svg'
+  '/Baby-Kick-Tracker/',
+  '/Baby-Kick-Tracker/index.html',
+  '/Baby-Kick-Tracker/manifest.json',
+  '/Baby-Kick-Tracker/icon.svg'
 ];
 
-// Install Event - Cache Core Assets
+// Install Event - Cache Core Assets securely
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -14,7 +15,7 @@ self.addEventListener('install', e => {
   );
 });
 
-// Activate Event
+// Activate Event - Evict old cache configurations
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys => {
@@ -27,13 +28,13 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Fetch Event - Crucial for Chrome PWA Installation validation
+// Fetch Event - Absolute validation layer required by Chrome
 self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request).catch(() => {
       return caches.match(e.request).then(response => {
         if (response) return response;
-        return new Response('Offline asset not found.');
+        return new Response('Asset not tracked in offline matrix cache.');
       });
     })
   );
@@ -43,9 +44,9 @@ self.addEventListener('fetch', e => {
 self.addEventListener('push', e => {
   const options = {
     body: e.data ? e.data.text() : 'New activity synced!',
-    icon: 'icon.svg',
+    icon: '/Baby-Kick-Tracker/icon.svg',
     vibrate: [300, 100, 300],
-    badge: 'icon.svg'
+    badge: '/Baby-Kick-Tracker/icon.svg'
   };
   e.waitUntil(self.registration.showNotification('Little Kicks Tracker', options));
 });
