@@ -1,18 +1,18 @@
 {
+  "name": "Little Kicks Tracker",
   "short_name": "Little Kicks",
-  "name": "Little Kicks Baby Tracker",
+  "start_url": "/Baby-Kick-Tracker/",
+  "scope": "/Baby-Kick-Tracker/",
+  "display": "standalone",
+  "background_color": "#FFF5F7",
+  "theme_color": "#FF7A90",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/Baby-Kick-Tracker/icon.svg",
+      "sizes": "any",
       "type": "image/svg+xml",
-      "sizes": "192x192 512x512",
       "purpose": "any maskable"
     }
-  ],
-  "start_url": "/Baby-Kick-Tracker/index.html",
-  "scope": "/Baby-Kick-Tracker/",
-  "background_color": "#FFF5F7",
-  "theme_color": "#FF7A90",
-  "display": "standalone",
-  "orientation": "portrait"
+  ]
 }
